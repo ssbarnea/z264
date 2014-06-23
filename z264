@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -ex
 # check file for AVC encoding and flv, wmv, or mkv wrapper and rewrap in mp4 container
 # 	otherwise, if not already am mp4, transcode to AVC mp4
 ########
@@ -45,49 +45,10 @@
 #make a working directory to collect the binary dependencies
 #cd; mkdir z264_binary_dependencies; cd z264_binary_dependencies/
 
-#download wget, and install in $install_target
-#curl -O  http://www.statusq.org/wp-content/uploads/2008/07/wget.zip >/dev/null
-#sleep 1
-#unzip wget.zip >/dev/null
-#sudo mv -nv wget/wget "$install_target"/
-#rm -rf "__MACOSX/"; rm -rf wget/ #clean up
-#sudo chmod 755 "$install_target"/wget
-#
-#wget="$install_target/wget"
-
-#download mediainfo, and install in $install_target
-#wget http://mediaarea.net/download/binary/mediainfo/0.7.66/MediaInfo_CLI_0.7.66_Mac.dmg >/dev/null
-#hdiutil attach -quiet -noverify -nobrowse -noautoopen MediaInfo_CLI_0.7.66_Mac.dmg
-#sleep 1
-#sudo installer -pkg /Volumes/MediaInfo\ CLI/MediaInfo\ CLI.pkg -target / >/dev/null
-#(note: MediaInfo\ CLI.pgk targets /usr/local/bin by default)
-#hdiutil detach -quiet /Volumes/MediaInfo\ CLI
-#sudo chmod 755 /usr/local/bin/mediainfo
-#
-#mediainfo="/usr/local/bin/mediainfo" #no choice, that's where it installs
-
-#download rmtrash, and install in $install_target
-#wget http://www.nightproductions.net/downloads/rmtrash.tar.gz >/dev/null
-#tar xvfz rmtrash.tar.gz >/dev/null
-#sudo mv -n rmtrash/rmtrash "$install_target"/
-#sudo chmod 755 "$install_target"/rmtrash
-#rm -rf rmtrash/ #clean up
-#
-#rmtrash="$install_tartet/rmtrash"
-
-#download ffmpeg, and install in $install_target
-#wget http://www.evermeet.cx/ffmpeg/ffmpeg-2.1.4.7z >/dev/null
-#wget http://rudix.googlecode.com/files/p7zip-9.04-0.i386.dmg >/dev/null
-#hdiutil attach -quiet -noverify -nobrowse -noautoopen p7zip-9.04-0.i386.dmg
-#sudo installer -pkg /Volumes/p7zip.pkg/p7zip.pkg -target / >/dev/null
-#(note: p7zip.pkg targets /usr/local/bin by default)
-#hdiutil detach -quiet /Volumes/p7zip.pkg
-#7z="/usr/local/bin/7z"
-#7z e ffmpeg-2.1.4.7z >/dev/null
-#sudo mv -n ffmpeg "$install_target"/
-#sudo chmod 755 "$install_target"/ffmpeg
-#
-#ffmpeg="$install_target/ffmpeg"
+for TOOL in wget mediainfo ffmpeg HandBrakeCLI rmtrash 7z
+do
+which $TOOL || { echo "$TOOL not found" ; exit 1; }
+done
 
 #download SublerCLI, and install in $install_target
 #wget http://subler.googlecode.com/files/SublerCLI-0.19.zip >/dev/null
@@ -96,26 +57,6 @@
 #sudo chmod 755 "$install_target"/SublerCLI
 #
 #SublerCLI="$install_target/SublerCLI"
-
-#download HandBrakeCLI, and install in $install_target
-#wget http://sourceforge.net/projects/handbrake/files/0.9.9/HandBrake-0.9.9-MacOSX.6_CLI_x86_64.dmg >/dev/null
-#hdiutil attach -quiet -noverify -nobrowse -noautoopen HandBrake-0.9.9-MacOSX.6_CLI_x86_64.dmg
-#sudo cp -np /Volumes/HandBrake-0.9.9-MacOSX.6_CLI_x86_64/HandBrakeCLI "$install_target"/
-#sudo chmod 755 "$install_target"/HandBrakeCLI
-#hdiutil detach -quiet /Volumes/HandBrake-0.9.9-MacOSX.6_CLI_x86_64.dmg
-#
-#HandBrakeCLI="$install_target/HandBrakeCLI"
-
-#cd; rm -rf z264_binary_dependencies #clean up working directory
-#echo "end of binary installation"; exit
-
-############################             **binary install**             ############################
-############################         <----------END---------->          ############################
-####################################################################################################
-
-####################################################################################################
-############################             **source install**             ############################
-############################         <---------BEGIN--------->          ############################
 
 #check for xcode
 ############
@@ -227,15 +168,15 @@
 # Define commands
 ############
 rd_path="/Volumes/Two"
-ls="/bin/ls"
-mediainfo="/opt/local/bin/mediainfo" # deep media analysis
+#ls="/bin/ls"
+#mediainfo="/opt/local/bin/mediainfo" # deep media analysis
 #grep="/usr/bin/grep"
-echo="/bin/echo"
-cut="/usr/bin/cut"
-mv="/bin/mv"
-rmtrash="/opt/local/bin/rmtrash"  # move to Trash
+#echo="/bin/echo"
+#cut="/usr/bin/cut"
+#mv="/bin/mv"
+#rmtrash="/opt/local/bin/rmtrash"  # move to Trash
 nll=`(>/dev/null)`
-ffmpeg="/opt/local/bin/ffmpeg"
+#ffmpeg="/opt/local/bin/ffmpeg"
 SublerCLI="$HOME/bin/SublerCLI"
 ########################################  HandBrake World  #########################################
 ############################         **background_transcoder**          ############################
@@ -258,13 +199,13 @@ background_transcoder () {
 #
 ############################
 ############################
-purge="/usr/bin/purge"
-mediainfo="/opt/local/bin/mediainfo"
-rmtrash="/opt/local/bin/rmtrash"
-time="usr/bin/time"
+#purge="/usr/bin/purge"
+#mediainfo="/opt/local/bin/mediainfo"
+#rmtrash="/opt/local/bin/rmtrash"
+#time="usr/bin/time"
 HandBrakeCLI="$HOME/bin/HandBrakeCLI"
-sleep="/bin/sleep"
-mv="/bin/mv"
+#sleep="/bin/sleep"
+#mv="/bin/mv"
 #wait="/usr/bin/wait"
 ############################
 #check the amount of free RAM
