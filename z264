@@ -1,0 +1,474 @@
+#!/bin/bash
+
+# check file for AVC encoding and flv, wmv, or mkv wrapper and rewrap in mp4 container
+# 	otherwise, if not already am mp4, transcode to AVC mp4
+########
+# usage:
+# z264 <file>
+# z264 *
+# z264 *.ext
+# z264 */*
+##########################
+
+# z264 has several dependencies (mediainfo, rmtrash, ffmpeg, SublerCLI, and HandBrakeCLI)
+# need logic here to check for dependencies
+# and if missing, prompt user for how to install missing dependencies (binary or source)
+# for now, installation is manual
+# uncomment appropriate section to install, but *must* re-comment these sections to use z264)
+# unfinished: 	xcode section, so if you can manually install xcode, the macports section should 
+# 				build the dependencies from source. HandBrakeCLI binary is most recent version.
+#				background_transcoder functions well, yet is still evolving; pay attention to the
+#				unfinished ramdisk section, as it is currently manual as well. Double check the
+#				command definitions for all dependecies and adjust accordingly.
+##########################
+
+####################################################################################################
+############################             **binary install**             ############################
+############################         <---------BEGIN--------->          ############################
+
+#cd="/usr/bin/cd"
+#mkdir="/bin/mkdir"
+#curl="/usr/bin/curl"
+#sleep="/bin/sleep"
+#sudo="/usr/bin/sudo"
+#unzip="/usr/bin/unzip"
+#cp="/bin/cp"
+#rm="/bin/rm"
+#mv="/bin/mv"
+#installer="/usr/sbin/installer"
+
+#location to install binary dependencies:
+#install_target="/usr/local/bin"
+#make sure install_target is in your path
+#echo 'export PATH=$PATH:"$install_target"' >> ~/.profile"
+
+#make a working directory to collect the binary dependencies
+#cd; mkdir z264_binary_dependencies; cd z264_binary_dependencies/
+
+#download wget, and install in $install_target
+#curl -O  http://www.statusq.org/wp-content/uploads/2008/07/wget.zip >/dev/null
+#sleep 1
+#unzip wget.zip >/dev/null
+#sudo mv -nv wget/wget "$install_target"/
+#rm -rf "__MACOSX/"; rm -rf wget/ #clean up
+#sudo chmod 755 "$install_target"/wget
+#
+#wget="$install_target/wget"
+
+#download mediainfo, and install in $install_target
+#wget http://mediaarea.net/download/binary/mediainfo/0.7.66/MediaInfo_CLI_0.7.66_Mac.dmg >/dev/null
+#hdiutil attach -quiet -noverify -nobrowse -noautoopen MediaInfo_CLI_0.7.66_Mac.dmg
+#sleep 1
+#sudo installer -pkg /Volumes/MediaInfo\ CLI/MediaInfo\ CLI.pkg -target / >/dev/null
+#(note: MediaInfo\ CLI.pgk targets /usr/local/bin by default)
+#hdiutil detach -quiet /Volumes/MediaInfo\ CLI
+#sudo chmod 755 /usr/local/bin/mediainfo
+#
+#mediainfo="/usr/local/bin/mediainfo" #no choice, that's where it installs
+
+#download rmtrash, and install in $install_target
+#wget http://www.nightproductions.net/downloads/rmtrash.tar.gz >/dev/null
+#tar xvfz rmtrash.tar.gz >/dev/null
+#sudo mv -n rmtrash/rmtrash "$install_target"/
+#sudo chmod 755 "$install_target"/rmtrash
+#rm -rf rmtrash/ #clean up
+#
+#rmtrash="$install_tartet/rmtrash"
+
+#download ffmpeg, and install in $install_target
+#wget http://www.evermeet.cx/ffmpeg/ffmpeg-2.1.4.7z >/dev/null
+#wget http://rudix.googlecode.com/files/p7zip-9.04-0.i386.dmg >/dev/null
+#hdiutil attach -quiet -noverify -nobrowse -noautoopen p7zip-9.04-0.i386.dmg
+#sudo installer -pkg /Volumes/p7zip.pkg/p7zip.pkg -target / >/dev/null
+#(note: p7zip.pkg targets /usr/local/bin by default)
+#hdiutil detach -quiet /Volumes/p7zip.pkg
+#7z="/usr/local/bin/7z"
+#7z e ffmpeg-2.1.4.7z >/dev/null
+#sudo mv -n ffmpeg "$install_target"/
+#sudo chmod 755 "$install_target"/ffmpeg
+#
+#ffmpeg="$install_target/ffmpeg"
+
+#download SublerCLI, and install in $install_target
+#wget http://subler.googlecode.com/files/SublerCLI-0.19.zip >/dev/null
+#unzip SublerCLI-0.19.zip >/dev/null
+#sudo mv -n SublerCLI $install_target"/
+#sudo chmod 755 "$install_target"/SublerCLI
+#
+#SublerCLI="$install_target/SublerCLI"
+
+#download HandBrakeCLI, and install in $install_target
+#wget http://sourceforge.net/projects/handbrake/files/0.9.9/HandBrake-0.9.9-MacOSX.6_CLI_x86_64.dmg >/dev/null
+#hdiutil attach -quiet -noverify -nobrowse -noautoopen HandBrake-0.9.9-MacOSX.6_CLI_x86_64.dmg
+#sudo cp -np /Volumes/HandBrake-0.9.9-MacOSX.6_CLI_x86_64/HandBrakeCLI "$install_target"/
+#sudo chmod 755 "$install_target"/HandBrakeCLI
+#hdiutil detach -quiet /Volumes/HandBrake-0.9.9-MacOSX.6_CLI_x86_64.dmg
+#
+#HandBrakeCLI="$install_target/HandBrakeCLI"
+
+#cd; rm -rf z264_binary_dependencies #clean up working directory
+#echo "end of binary installation"; exit
+
+############################             **binary install**             ############################
+############################         <----------END---------->          ############################
+####################################################################################################
+
+####################################################################################################
+############################             **source install**             ############################
+############################         <---------BEGIN--------->          ############################
+
+#check for xcode
+############
+#convention is to check if /usr/bin/xcodebuild; then xcodebuild -version && xcode-select -print-path
+#
+#developer="/Developer" 
+#ports_dir="/opt"
+#echo="/bin/echo"
+#curl="/usr/bin/curl"
+#tar="/usr/bin/tar"
+#cd="/usr/bin/cd"
+#sudo="/usr/bin/sudo"
+#make="/usr/bin/make"
+#sleep="/bin/sleep"
+#rm="/bin/rm"
+#	if [ ! -d "$developer" ]; then		########################################## 
+#		echo ""
+#		echo "install xcode: http://guide.macports.org/#installing.xcode"; echo ""
+#		open "http://guide.macports.org/#installing.xcode"
+#		open "developer.apple.com"
+#		exit; # haven't completed this section yet, manually download xcode and install
+#		#check system version
+#		#auth to https://developer.apple.com with u264 developer accounts randomized list
+#		#check OS version and download appropriate xcode version dmg
+#		#hdiutil attach -quiet -noverify -nobrowse -noautoopen $xcode.dmg
+#		#verify minimal_xcode_install.sh is sufficient for building dependencies
+#		if [ `$[RANDOM%2+1]`!="1" ]; then
+#		accountname="u264.appleID.00@gmail.com"
+#		accountpassword="u264,ID00"
+#		else
+#		accountname="u264.appleID.01@gmail.com"
+#               accountpassword="u264,ID01"
+#		fi
+#  		# Log in to the server.  This can be done only once.
+#		wget --save-cookies cookies.txt --post-data 'accountname=$account&accountpassword=$word' https://daw.apple.com/cgi-bin/WebObjects/DSAuthWeb.woa/wa/login?&appIdKey=891bd3417a7776362562d2197f89480a8547b108fd934911bcbea0110d07f757&path=%2F%2Fmembercenter%2Findex.action --ignore-certificate
+#
+#   # Now grab the page or pages we care about.
+#   wget --load-cookies cookies.txt -p https://haven't_collected_the_target_xcode_urls_yet --ignore-certificate
+#
+#
+#	else
+#check for macports
+############
+#		#echo ""; echo "-->   checking for macports..."; echo ""
+#		#install macports https://www.macports.org/install.php 
+#		if [ ! -d "$ports_dir" ]; then
+#			#echo ""; echo "---->   macports is not installed"; echo ""
+#			#echo ""; echo "-->   building macports"; echo ""
+#			curl -Ok https://distfiles.macports.org/MacPorts/MacPorts-2.1.1.tar.gz >/dev/null
+#			tar xzvf MacPorts-2.1.1.tar.gz 		>/dev/null
+#			cd MacPorts-2.1.1
+#			./configure 				>/dev/null 2>>$HOME/error_log.txt
+#			sleep 5
+#			make					>/dev/null 2>>$HOME/error_log.txt
+#			sudo make install # not war!		>/dev/null 2>>$HOME/error_log.txt
+#			sleep 1
+#			#echo ""; echo "-->   macports build complete"; echo ""
+#			cd ..
+#			rm -rf MacPorts-*
+#			sudo /opt/local/bin/port -qfp selfupdate	>/dev/null
+#			#echo ""; echo "use the built-in shell command 'export' to set your PATH follows:"; echo ""
+#			#echo "export PATH="$PATH:$HOME/bin:/opt/local/bin:/opt/local/sbin:"\
+#				"/opt/local/share/man:/Developer/usr/bin:/Developer/usr/sbin:/usr/X11/bin""
+#			#echo ""
+#			sudo chflags hidden /opt
+#			#echo ""
+#			port="/opt/local/bin/port"
+#			#echo ""
+#
+#install dependencies from source
+############
+#			sudo port -qsk install mediainfo rmtrash ffmpeg `#handbrake` >/dev/null 2>$HOME/error_log.txt
+#			
+#clean up macports
+############
+#			#echo ""; echo "-->   upgrade outdated ports..."
+#			sudo port -qsfuck upgrade outdated				>/dev/null
+#			#echo ""; echo "----> outdated ports upgraded"
+#
+#			sudo port -qfcup uninstall --follow-dependencies inactive	>/dev/null
+#			#echo ""; echo "----> inactive ports and dependencies uninstalled"; echo ""
+#
+#			#echo ""; echo "-->   cleaning all installed ports..."
+#			sudo port -qfp clean installed					>/dev/null
+#			#echo ""; echo "----> all installed ports cleaned"; echo ""
+#
+#			#echo ""; echo "-->   selfupdating ports..."
+#			sudo port -qfp selfupdate					>/dev/null
+#			#echo ""; echo "----> ports selfupdated"; echo ""
+#			
+#			#echo ""; echo "-->   repairing and verifying permissions..."
+#			diskutil quiet repairPermissions /				#>/dev/null
+#			#diskutil quiet verifyPermissions /				#>/dev/null
+#			#echo ""; echo "----> permissions repaired and verified"; echo
+#			#echo ""; echo "-->   optimizing system for installed software..."
+#			#echo ""; echo "-->   optimizing system for installed software..."
+#			/usr/bin/update_dyld_shared_cache -force			>/dev/null 2>&1 &
+#						
+#		fi
+#	fi
+#exit
+
+############################             **source install**             ############################
+############################         <----------END---------->          ############################
+####################################################################################################
+
+
+
+# Define commands
+############
+rd_path="/Volumes/Two"
+ls="/bin/ls"
+mediainfo="/opt/local/bin/mediainfo" # deep media analysis
+#grep="/usr/bin/grep"
+echo="/bin/echo"
+cut="/usr/bin/cut"
+mv="/bin/mv"
+rmtrash="/opt/local/bin/rmtrash"  # move to Trash
+nll=`(>/dev/null)`
+ffmpeg="/opt/local/bin/ffmpeg"
+SublerCLI="$HOME/bin/SublerCLI"
+########################################  HandBrake World  #########################################
+############################         **background_transcoder**          ############################
+############################         <---------BEGIN--------->          ############################
+background_transcoder () {
+##########################
+#########################
+## +-+-+-+-+-+-+-+-+-+-+-+-+ ##
+##    |H|a|n|d|B|r|a|k|e|C|L|I|   ##
+## +-+-+-+-+-+-+-+-+-+-+-+-+ ##
+#########################
+##########################
+#
+# video:
+#	--crop T:B:L:R
+#	-d -5 -7 -8  - d=deinterlace, 5=decomb, 7=deblock, 8=denoise
+# audio:
+#-a 1 -E aac --audio-copy-mask aac --audio-fallback ca_aac -B $ab -R $arate 
+#-6 $mix -4 --loose-anamorphic --audio-copy-mask acc
+#
+############################
+############################
+purge="/usr/bin/purge"
+mediainfo="/opt/local/bin/mediainfo"
+rmtrash="/opt/local/bin/rmtrash"
+time="usr/bin/time"
+HandBrakeCLI="$HOME/bin/HandBrakeCLI"
+sleep="/bin/sleep"
+mv="/bin/mv"
+#wait="/usr/bin/wait"
+############################
+#check the amount of free RAM
+#vm_stat="/usr/bin/vm_stat"
+#awk="/usr/bin/awk"
+#free="$(( $(vm_stat | awk '/free/ {gsub(/\./, "", $3); print $3}') * 4096 / 1048576)) MiB free RAM"
+#echo $free
+#accurately estimate output file size 
+############################
+#first set up 4 part formula to estimate output file final_size
+# 1: fps x width x height x bitdepth x duration = uncompressed_size
+# 2: uncompressed_size / ratio = compressed_video_size
+# 3: audio_bitrate x duration = compressed_audio_size
+# 4: compressed_video_size + compressed_audio_size = final_size
+########	1:
+#	fps=`mediainfo --Inform="Video;%FrameRate%" "$1"` 
+#	width=`mediainfo  "--Inform=Video;%Width%" "$1"`
+#	height=`mediainfo  "--Inform=Video;%Height%" "$1"`
+#	bitdepth=`mediainfo --Inform="Video;%BitDepth%" "$1"`
+#	duration=`mediainfo --Inform="General;%Duration%" "$1"`
+#	uncompressed_size=$(expr $fps \* $width \* $height \* $bitdepth \* $duration)
+########	2:
+#	#QLTY="20" # $QLTY is user defined HandBrakeCLI "q"
+#	ratio=$(expr $QLTY / 100)
+#	compressed_video_size=$(expr $uncompressed_size / $ratio)
+########	3:
+#	audio_bitrate=`mediainfo --Inform="Audio;%BitRate%" "$1"`
+#	compressed_audio_size=$(expr $audio_bitrate \* $duration)
+########	4:
+#	final_size=$(expr $compressed_video_size + $compressed_audio_size)
+#	wiggle_room=$(expr $final_size / 10)
+############################
+######## ramdisk
+#then check ram, and if enough, make a ramdisk named "$1"rd that size + 10% wiggle room
+#	size=$(expr $final_size + $wiggle_room)
+#	diskutil quiet erasevolume HFS+ '"$1"rd' `hdiutil attach -nomount ram://$size`	
+#	chflags hidden /Volumes/"$1"rd
+#	rd_path="/Volumes/"$1"rd
+#need logic to decide if there's enough ram, and if so, do all that---^
+#but for now just create a 2GB ramdisk called "Two" and leave it there
+#size="4194304" 	# 1024 x MB you want x 2048
+#diskutil quiet erasevolume HFS+ 'Two' `hdiutil attach -nomount ram://$size`
+rd_path="/Volumes/Two"
+############################     HandBrakeCLI user defined variables     ############################
+QLTY="20"	#-q setting (worse/smaller/faster > 20 > better/bigger/slower)
+#max="1024"	#dimensions in pixels  -X $max "960"
+may="720"	#dimensions in pixels  -Y $may "640"
+arate="Auto"
+			#audio samplerate (22.05/24/32/44.1/48 kHz/Auto)
+fa="2" 	 	#--rotate=< 0-none 1-xflip 2-yflop 3-flipflop/180°>
+pre_ab=`mediainfo "--Inform=Audio;%BitRate%" "$1"`	
+			#get bitrate of source file in bits/s
+ab=$(expr $pre_ab / 1000)
+			#average audio bitrate in kb/s (-B)
+mix="stereo"
+			#(mono/stereo/dpl1/dpl2/6ch, default: dpl2)
+sdt="placebo"
+			#(ultrafast, superfast, veryfast, faster, fast, medium, slow, slower,
+			# veryslow, placebo) "best is probably the slowest tolerable" <--Seriously?
+tune="fastdecode"
+			#(film, animation, grain, stillimage, psnr, ssim, fastdecode, zerolatency)
+h264P="high"
+			#(main, high) h.264 profile
+h264L="3.1"	#(3.1,4.1)    h.264 level
+dblk="7" 	#-7 --deblock=<QP:M> mplayer pp7 deblock filter, default is 5
+x_opts="qpmin=4:cabac=0:ref=2:b-pyramid=none:weightb=0:weightp=0:vbv-maxrate=9500:vbv-bufsize=9500"
+############################			**background_transcoder**		############################
+purge
+sleep 1.25
+width=`mediainfo "--Inform=Video;%Width%" "$rd_path"/"$1"_"$sdt"_q"$QLTY"_f"$fa"_.m4v`
+height=`mediainfo "--Inform=Video;%Height%" "$rd_path"/"$1"_"$sdt"_q"$QLTY"_f"$fa"_.m4v`
+nn=`(echo "$1" | cut -c1-17)`
+time HandBrakeCLI -i "$1" -o "$rd_path"/"$1"_"$sdt"_q"$QLTY"_f"$fa"_.m4v -e x264 -q $QLTY -r 30 --pfr -Y $may -O --rotate=$fa -5 -7 $dblk -a 1 -E copy:acc --audio-copy-mask aac --audio-fallback ca_aac -B $ab -R $arate -6 $mix -4 --modulus 16 -m --x264-preset $sdt --x264-tune $tune --h264-profile $h264P --h264-level $h264L -x $x_opts >/dev/null 2>&1
+echo "$1"; echo ""
+sleep 2
+width=`mediainfo "--Inform=Video;%Width%" "$rd_path"/"$1"_"$sdt"_q"$QLTY"_f"$fa"_.m4v`
+height=`mediainfo "--Inform=Video;%Height%" "$rd_path"/"$1"_"$sdt"_q"$QLTY"_f"$fa"_.m4v`
+nn=`(echo "$1" | cut -c1-17)`
+mv -n "$rd_path"/"$1"_"$sdt"_q"$QLTY"_f"$fa"_.m4v ./"$nn"_"$sdt"_q"$QLTY"_f"$fa"_"$width"x"$height"p.m4v
+rmtrash "$1"
+sleep 1
+#hdiutil detach quiet /Volumes/"$1"rd # detach each ramdisk after each transcode and output is moved to ./
+}
+############################         **background_transcoder**          ############################
+############################         <----------END---------->          ############################
+########################################  HandBrake World  #########################################
+
+########################################################################################################
+################################################# z264 #################################################
+########################################################################################################
+
+
+	while [ "$1" != "" ]
+ 	  do
+	  echo "Analyzing: "
+	  echo "	"$1"..."
+	  xray=`mediainfo  "--Inform=Video;%Format%" "$1"`
+	  width=`mediainfo  "--Inform=Video;%Width%" "$1"`
+	  height=`mediainfo  "--Inform=Video;%Height%" "$1"`
+	  #******************************************************************
+	  if [[ $1 == *.flv ]] || [[ $1 == *.wmv ]] || [[ $1 == *.mov ]] || \
+	     [[ $1 == *.FLV ]] || [[ $1 == *.WMV ]] || [[ $1 == *.MOV ]]; then
+		#######################--- 1 ---############################
+		if [ "$xray" = "AVC" ]; then
+			bullseye="$xray"
+			Adv="AVC"
+	   	else
+			bullseye=`echo "missed"`
+			Adv=`echo "no_match"`
+		fi
+		#######################--- 1 ---############################
+
+	  	#######################--- 2 ---############################
+		if [ "$Adv" = "$bullseye" ]; 
+			then 
+				echo "	yes," $1
+				echo "	is encoded with the ("$bullseye")"
+				echo "	using ffmpeg for lossless rewrap in mp4 container..." 
+				ffmpeg -loglevel panic -i "$1" -vcodec copy -acodec copy $rd_path/"$1".mp4 |$nll
+				rmtrash "$1" #move original file to the Trash
+				SublerCLI -source $rd_path/"$1".mp4 -dest "$1"_"$width"x"$height"p.mp4 -removemetadata -itunesfriendly -optimize |$nll
+				rm $rd_path/"$1".mp4 #clean it off the ramdisk
+				echo ""
+
+			else
+				echo "	no," $1
+				echo "	is encoded with $xray"
+				echo "	transcoding" $1"... with HandBrake to AVC mp4"
+				echo "	in the background, please standby while process is spawned..."
+				background_transcoder "$1" &
+				sleep 8
+				echo ""
+				echo "	please remember this background process is still running!"
+				echo ""; sleep 5;
+				echo "	    *background process has been spawned*"; sleep 2; echo ""
+				echo "	moving on..."; sleep 2
+				echo "" 
+		fi
+	  	#######################--- 2 ---############################
+
+	  else
+	  	########################--- check for matroska ---###################
+		if [[ $1 == *.mkv ]]; then 
+			echo "  "$1 "is encoded with $xray"
+			echo "	but is wrapped in matroska!"
+			echo "	using ffmpeg for lossless rewrap in mp4 container..."
+			aray=`mediainfo  "--Inform=Audio;%Format%" "$1"`
+			brate=`mediainfo  "--Inform=Audio;%BitRate%" "$1"`
+			srate=`mediainfo  "--Inform=Audio;%SamplingRate%" "$1"`
+			if [ $aray = "AAC" ] && [ $brate -le 160000 ]; 
+			    then
+					ffmpeg -loglevel panic -i "$1" -vcodec copy -acodec copy $rd_path/"$1".mp4 |$nll
+			    else
+					#audio bitrate too high, transcode audio
+					echo ""; echo "	the audio is encoded in $aray at $brate bps and $srate Hz"
+					if [ $brate -gt 160000 ]
+						then
+			    			echo ""; echo "	transcoding audio to aac at 160000 bps and $srate Hz..."
+			    			ffmpeg -loglevel panic -i "$1" -vcodec copy -c:a aac -strict -2 -ab 160k -ac 2 -ar $srate $rd_path/"$1".mp4 |$nll
+			    		else
+			    			echo ""; echo "	transcoding audio to aac at $brate bps and $srate Hz..."
+							ffmpeg -loglevel panic -i "$1" -vcodec copy -c:a aac -strict -2 -ab $brate -ac 2 -ar $srate $rd_path/"$1".mp4 |$nll
+					fi
+
+			fi			
+			rmtrash "$1" #move original file to the Trash
+			SublerCLI -source $rd_path/"$1".mp4 -dest "$1"_"$width"x"$height"p.mp4 -removemetadata -itunesfriendly -optimize |$nll
+				rm $rd_path/"$1".mp4 #clean it off the ramdisk
+			echo ""
+	  	     ###################--- check other filetypes ---###################
+		else
+		     if [[ $1 == *.mpg ]] || [[ $1 == *.mpeg ]] || [[ $1 == *.vob ]] || \
+			[[ $1 == *.MPG ]] || [[ $1 == *.MPEG ]] || [[ $1 == *.VOB ]] || \
+                        [[ $1 == *.avi ]] || [[ $1 == *.AVI ]]; then
+			    echo "	no,"$1
+                            echo "	is encoded with $xray"
+                            echo "	transcoding" $1"... with HandBrake to AVC mp4"
+                            echo "	in the background, please standby while process is spawned..."
+							background_transcoder "$1" &
+                            sleep 8
+                            echo ""
+                            echo "	please remember this background process is still running!"
+                            echo ""; sleep 5;
+                            echo "	    *background process has been spawned*"; sleep 2; echo ""
+                            echo "	moving on..."; sleep 2
+                            echo ""
+                          #############--- check for mp4 ---##############
+			else
+			     if [[ $1 == *.mp4 ]] || [[ $1 == *.m4v ]] || \
+			     [[ $1 == *.MP4 ]] || [[ $1 == *.M4V ]]; then
+			     echo "	"$1 
+			     echo "	is already an mp4!"
+			     mv "${1}" "${1%.mp4}"_"$width"x"$height"p.mp4
+		             echo ""
+			  fi
+	  		  #############--- check for mp4 ---##############
+		     fi
+	  	     ###################--- check other filetypes ---###################
+	   	fi
+	  	########################--- check for matroska ---###################
+	  fi
+	  #******************************************************************
+	  echo ""
+	  shift
+	done
+
+exit
