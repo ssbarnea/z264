@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+#set -ex
 # check file for AVC encoding and flv, wmv, or mkv wrapper and rewrap in mp4 container
 # 	otherwise, if not already am mp4, transcode to AVC mp4
 ########
@@ -38,25 +38,21 @@ set -ex
 #installer="/usr/sbin/installer"
 
 #location to install binary dependencies:
-#install_target="/usr/local/bin"
+install_target="/usr/local/bin"
 #make sure install_target is in your path
 #echo 'export PATH=$PATH:"$install_target"' >> ~/.profile"
 
 #make a working directory to collect the binary dependencies
 #cd; mkdir z264_binary_dependencies; cd z264_binary_dependencies/
 
-for TOOL in wget mediainfo ffmpeg HandBrakeCLI rmtrash 7z
+for TOOL in wget mediainfo ffmpeg HandBrakeCLI rmtrash 7z SublerCLI
 do
 which $TOOL || { echo "$TOOL not found" ; exit 1; }
 done
 
-#download SublerCLI, and install in $install_target
-#wget http://subler.googlecode.com/files/SublerCLI-0.19.zip >/dev/null
-#unzip SublerCLI-0.19.zip >/dev/null
-#sudo mv -n SublerCLI $install_target"/
-#sudo chmod 755 "$install_target"/SublerCLI
 #
-#SublerCLI="$install_target/SublerCLI"
+SublerCLI="$install_target/SublerCLI"
+
 
 #check for xcode
 ############
@@ -177,7 +173,7 @@ rd_path="/Volumes/Two"
 #rmtrash="/opt/local/bin/rmtrash"  # move to Trash
 nll=`(>/dev/null)`
 #ffmpeg="/opt/local/bin/ffmpeg"
-SublerCLI="$HOME/bin/SublerCLI"
+#SublerCLI="$HOME/bin/SublerCLI"
 ########################################  HandBrake World  #########################################
 ############################         **background_transcoder**          ############################
 ############################         <---------BEGIN--------->          ############################
@@ -203,7 +199,7 @@ background_transcoder () {
 #mediainfo="/opt/local/bin/mediainfo"
 #rmtrash="/opt/local/bin/rmtrash"
 #time="usr/bin/time"
-HandBrakeCLI="$HOME/bin/HandBrakeCLI"
+#HandBrakeCLI="$HOME/bin/HandBrakeCLI"
 #sleep="/bin/sleep"
 #mv="/bin/mv"
 #wait="/usr/bin/wait"
